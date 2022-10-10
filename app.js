@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const authRoutes = require('./routes/authRoutes')
 
 const app = express();
 
@@ -14,13 +15,11 @@ const dbURI = 'mongodb+srv://shabbir:1234@nodejwt.re9kr4c.mongodb.net/jsonwebtok
 mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true })
   .then((result) => {
     console.log("database connected");
+    app.listen(8000);
   })
   .catch((err) => console.log(err));
 
 // routes
 app.get('/', (req, res) => res.render('home'));
 app.get('/smoothies', (req, res) => res.render('smoothies'));
-
-app.listen(8000, () => {
-  console.log("App listning at port 8000")
-})
+app.use(authRoutes);
