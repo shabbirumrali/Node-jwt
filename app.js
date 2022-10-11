@@ -10,7 +10,6 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(cookieParser());
 
-
 // view engine
 app.set('view engine', 'ejs');
 

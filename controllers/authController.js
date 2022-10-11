@@ -11,12 +11,21 @@ const handleErrors = (err) => {
     console.log(err.message, err.code);
     const errors = {email: '', password: ''};
 
+    // incorrect email
+    if(err.message === 'incorrect email') {
+        errors.email = 'that email is incorrect';
+    }
+
+    // incorrect password
+    if(err.message === 'incorrect password') {
+        errors.password = 'that passwrod is incorrect';
+    }
+
     // duplicate error code
     if(err.code === 11000) {
         errors.email = "Email already exist enter new one or login with the same";
         return errors;
     }
-
     // validation errors
     if(err.message.includes('user validation failed')){
         Object.values(err.errors).forEach(({properties}) => {
@@ -25,6 +34,8 @@ const handleErrors = (err) => {
     }
     return errors
 }
+
+
 
 const maxAge = 3 * 24 * 60 * 60;
 const createToken = (id) => {
@@ -51,7 +62,15 @@ module.exports.login_get = (req, res) => {
 }
 
 // Request      post     /login
-module.exports.login_post = (req, res) => {
-    console.log(req.body);
-    res.send('user login');
+module.exports.login_post = async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await User.login(email, password);
+        const token = createToken(user._id);
+        res.cookie('jwt', token, {httpOnly: true, maxAge: maxAge * 1000 })
+        res.status(201).json({ user: user._id });
+    } catch (err) {
+        const error = handleErrors(err);
+        res.status(404).json({ error });
+    }
 }
